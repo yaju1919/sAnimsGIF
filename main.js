@@ -157,7 +157,7 @@
                     });
                 });
                 break
-            case '': // 反時計回り
+            case '5': // 反時計回り
                 [2,1,0,3].forEach(function(y,i){
                     [1,0,1,0,1].forEach(function(x){
                         draw((x+i)%2,y);
