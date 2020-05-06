@@ -56,9 +56,9 @@
         value: 10,
     });
     h.append("<br>");
-    var input_color = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定"}).appendTo(h));
+    var input_color = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定:"}).appendTo(h));
     h.append("<br><br>");
-    $("<button>").appendTo(h).text("gif画像化処理を開始").click(makeGIF);
+    $("<button>").appendTo(h).text("gif画像化処理を開始").click(prepare);
     var msg_e = $("<div>").appendTo(h);
     var msg = function(str){
         msg_e.text(str+` (${yaju1919.getTime()})`);
@@ -80,14 +80,41 @@
         };
         img.src = blobUrl;
     }
-    function makeGIF(){
+    function prepare(){ // 透明色設定
+        var rgb = yaju1919.getRGB(input_color.val());
+        var cv = $("<canvas>").attr({
+            width: 32,
+            height: 64
+        });
+        var ctx = cv.get(0).getContext('2d');
+        ctx.drawImage(g_img,0,0);
+        var ImgData = ctx.getImageData(0, 0, 32, 64);
+        var data = ImgData.data;
+        yaju1919.makeArray(data.length/4).forEach(function(i){
+            var x = i % 32,
+                y = Math.floor(i / 32);
+            var a = data[i * 4 + 3];
+            if(a === 0){ // 透明なら
+                ctx.beginPath () ;
+                ctx.rect( x, y, 1, 1 );
+                ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
+                ctx.fill() ;
+            }
+        });
+        var newImg = new Image();
+        newImg.onload = function(){
+            makeGIF(newImg);
+        };
+        newImg.src = cv.get(0).toDataURL();
+    }
+    function makeGIF(img){
         var encoder = new GIFEncoder();
         encoder.setRepeat(0); //繰り返し回数 0=無限ループ
         encoder.setDelay(600); //1コマあたりの待機秒数（ミリ秒）
         encoder.setQuality(input_quality()); // 色量子化の品質を設定
-        encoder.setTransparent(Number("0x" + input_color.val().slice(1))); // 最後に追加されたフレームと後続のフレームの透明色を設定
+        encoder.setTransparent(parseInt(input_color.val().slice(1),16)); // 最後に追加されたフレームと後続のフレームの透明色を設定
         encoder.start()
-        var rate = input_rate();;
+        var rate = input_rate();
         var cv = $("<canvas>").attr({
             width: 16 * rate,
             height: 16 * rate
@@ -103,7 +130,7 @@
         var mode = select_mode();
         function draw(x, y){
             ctx.clearRect(0, 0, 16 * rate, 16 * rate);
-            ctx.drawImage(g_img, x * 16, y * 16, 16, 16, 0, 0, 16 * rate, 16 * rate);
+            ctx.drawImage(img, x * 16, y * 16, 16, 16, 0, 0, 16 * rate, 16 * rate);
             encoder.addFrame(ctx);
         }
         switch(mode){
@@ -142,6 +169,7 @@
         $("<button>",{text:"ダウンロード"}).click(function(){
             encoder.download(g_fileName.replace(/\..*$/,'') + ".gif");
         }).appendTo(h_result.empty());
+        h_result.append("<br>");
         var url = 'data:image/gif;base64,' + encode64(encoder.stream().getData());
         $("<img>",{src:url}).appendTo(h_result);
     }
