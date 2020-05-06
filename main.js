@@ -46,12 +46,24 @@
             "反時計回り": 5,
         }
     });
-    $("<button>").appendTo(h).text("gif画像化").click(makeGIF);
+    var input_quality = yaju1919.addInputNumber(h,{
+        title: "処理速度(1~20)",
+        placeholder: "速くなるほど低品質",
+        int: true,
+        min: 1,
+        save: "quality",
+        max: 20,
+        value: 10,
+    });
+    h.append("<br>");
+    var input_color = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透過色の設定"}).appendTo(h));
+    h.append("<br><br>");
+    $("<button>").appendTo(h).text("gif画像化処理を開始").click(makeGIF);
     var msg_e = $("<div>").appendTo(h);
     var msg = function(str){
         msg_e.text(str+` (${yaju1919.getTime()})`);
     };
-    var g_img;
+    var g_img, g_fileName;
     var h_result = $("<div>").appendTo(h);
     var input = $("<input>").attr({
         type: "file"
@@ -59,6 +71,7 @@
     function loadImg(e){
         var file = e.target.files[0];
         if(!file) return;
+        g_fileName = file.name;
         var blobUrl = window.URL.createObjectURL(file);
         var img = new Image();
         img.onload = function(){
@@ -67,10 +80,17 @@
         };
         img.src = blobUrl;
     }
+    function JavaColorClassGetRGB(r, g, b) {
+        return ~parseInt([r, g, b].map(v => ("0" + (255 - v).toString(16)).slice(-2)).join(''), 16);
+    }
     function makeGIF(){
         var encoder = new GIFEncoder();
         encoder.setRepeat(0); //繰り返し回数 0=無限ループ
         encoder.setDelay(600); //1コマあたりの待機秒数（ミリ秒）
+        encoder.setQuality(input_quality()); // 色量子化の品質を設定
+        var rgb = yaju1919.getRGB(input_color());
+        encoder.setTransparent(JavaColorClassGetRGB(rgb[0],rgb[1],rgb[2])); // 最後に追加されたフレームと後続のフレームの透明色を設定
+        encoder.setDispose(2); // 最後に追加されたフレームと後続のフレームのGIFフレーム廃棄コード
         encoder.start()
         var rate = input_rate();;
         var cv = $("<canvas>").attr({
@@ -124,7 +144,7 @@
         }
         encoder.finish();
         $("<button>",{text:"ダウンロード"}).click(function(){
-            encoder.download("download.gif");
+            encoder.download(g_fileName.replace(/\..*$/,'') + ".gif");
         }).appendTo(h_result.empty());
         var url = 'data:image/gif;base64,' + encode64(encoder.stream().getData());
         $("<img>",{src:url}).appendTo(h_result);
