@@ -174,7 +174,6 @@
         var sy = 0;
         var mode = select_mode();
         function draw(x, y){
-            ctx.clearRect(0, 0, 16 * rate, 16 * rate);
             ctx.fillStyle = input_color.val();
             ctx.fillRect(0, 0, cv.get(0).width, cv.get(0).height);
             ctx.drawImage(g_img, x * 16, y * 16, 16, 16, input_x(), input_y(), 16 * rate, 16 * rate);
