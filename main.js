@@ -79,12 +79,12 @@
         id2: "opt",
         save: "opt"
     });
-    $("#opt").append("<br>");
     $("<div>").text("透明背景のサイズ").appendTo("#opt");
     var input_w = yaju1919.addInputNumber("#opt",{
         title: "幅",
         save: "w",
         min: 16,
+        max: 600,
         value: 16,
         id: "w",
         change: function(v){
@@ -97,6 +97,7 @@
         title: "高さ",
         save: "h",
         min: 16,
+        max: 450,
         value: 16,
         id: "h",
         change: function(v){
@@ -105,6 +106,7 @@
             $("#y").trigger("change");
         }
     });
+    $("#opt").append("<br>");
     $("<div>").text("スプライトの座標").appendTo("#opt");
     var input_x = yaju1919.addInputNumber("#opt",{
         title: "x座標",
