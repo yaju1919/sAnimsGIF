@@ -35,11 +35,11 @@
     var show_rated_size = $("<div>");
     var input_rate = yaju1919.addInputNumber(h,{
         title: "拡大倍率",
-        placeholder: "RPGENの倍率は2.625",
+        placeholder: "RPGENの倍率は2.5",
         min: 1,
         save: "rate",
         max: 26,
-        value: 3,
+        value: 2.5,
         change: function(v){
             var size = v * 16;
             show_rated_size.text("拡大後のサイズ:" + size);
