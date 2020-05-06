@@ -151,16 +151,16 @@
                 draw(1,1);
                 break;
             case '4': // 時計回り
-                [2,3,0,1].forEach(function(y){
+                [2,3,0,1].forEach(function(y,i){
                     [1,0,1,0,1].forEach(function(x){
-                        draw(x,y);
+                        draw((x+i)%2,y);
                     });
                 });
                 break
             case '': // 反時計回り
-                [2,1,0,3].forEach(function(y){
+                [2,1,0,3].forEach(function(y,i){
                     [1,0,1,0,1].forEach(function(x){
-                        draw(x,y);
+                        draw((x+i)%2,y);
                     });
                 });
                 break
