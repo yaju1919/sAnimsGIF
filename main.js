@@ -19,7 +19,7 @@
                 img.src = 'http://rpgen.us/dq/sAnims/img/404.png';
             };
             img.src = "http://rpgen.pw/dq/sAnims/res/" + n + ".png";
-            $(img).appendTo(h_pic);
+            $(img).appendTo(h_pic.empty());
         }
     });
     h_pic.appendTo(h);
