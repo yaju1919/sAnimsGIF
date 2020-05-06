@@ -27,13 +27,30 @@
     $("<button>").appendTo(h).text("画像選択").click(function(){
         input.click();
     });
+    var msg_e = $("<div>").appendTo(h);
+    var msg = function(str){
+        msg_e.text(str+` (${yaju1919.getTime()})`);
+    };
+    h.append("<br>");
+    var show_rated_size = $("<div>");
     var input_rate = yaju1919.addInputNumber(h,{
         title: "拡大倍率",
         min: 1,
         save: "rate",
         max: 26,
         value: 3,
+        change: function(v){
+            var size = v * 16;
+            show_rated_size.text("拡大後のサイズ:" + size);
+            if(option_flag){
+                if(!option_flag()){
+                    $("#w").add("#h").val(size);
+                }
+                $("#w").add("#h").trigger("change");
+            }
+        }
     });
+    h.append(show_rated_size).append("<br>");
     var select_mode = yaju1919.addSelect(h,{
         title: "gifの動き方",
         save:  "mode",
@@ -55,14 +72,67 @@
         max: 20,
         value: 10,
     });
-    h.append("<br>");
     var input_color = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定:"}).appendTo(h));
+    h.append("<br>");
+    var option_flag = yaju1919.addHideArea(h,{
+        title: "オプション機能",
+        id2: "opt",
+        save: "opt"
+    });
+    $("#opt").append("<br>");
+    $("<div>").text("透明背景のサイズ").appendTo("#opt");
+    var input_w = yaju1919.addInputNumber("#opt",{
+        title: "幅",
+        save: "w",
+        min: 16,
+        value: 16,
+        id: "w",
+        change: function(v){
+            var min = input_rate() * 16;
+            if(v < min) return min;
+            $("#x").trigger("change");
+        }
+    });
+    var input_h = yaju1919.addInputNumber("#opt",{
+        title: "高さ",
+        save: "h",
+        min: 16,
+        value: 16,
+        id: "h",
+        change: function(v){
+            var min = input_rate() * 16;
+            if(v < min) return min;
+            $("#y").trigger("change");
+        }
+    });
+    $("<div>").text("スプライトの座標").appendTo("#opt");
+    var input_x = yaju1919.addInputNumber("#opt",{
+        title: "x座標",
+        save: "x",
+        min: 0,
+        value: 0,
+        id: "x",
+        change: function(v){
+            var max = input_w() - input_rate() * 16;
+            if(v > max) return max;
+        }
+    });
+    var input_y = yaju1919.addInputNumber("#opt",{
+        title: "y座標",
+        save: "y",
+        min: 0,
+        value: 0,
+        id: "y",
+        change: function(v){
+            var max = input_h() - input_rate() * 16;
+            if(v > max) return max;
+        }
+    });
     h.append("<br><br>");
-    $("<button>").appendTo(h).text("gif画像化処理を開始").click(prepare);
-    var msg_e = $("<div>").appendTo(h);
-    var msg = function(str){
-        msg_e.text(str+` (${yaju1919.getTime()})`);
-    };
+    $("<button>").appendTo(h).text("gif画像化処理を開始").click(makeGIF).css({
+        color: "yellow",
+        backgroundColor: "red",
+    });
     var g_img, g_fileName;
     var h_result = $("<div>").appendTo(h);
     var input = $("<input>").attr({
@@ -80,34 +150,7 @@
         };
         img.src = blobUrl;
     }
-    function prepare(){ // 透明色設定
-        var rgb = yaju1919.getRGB(input_color.val());
-        var cv = $("<canvas>").attr({
-            width: 32,
-            height: 64
-        });
-        var ctx = cv.get(0).getContext('2d');
-        ctx.drawImage(g_img,0,0);
-        var ImgData = ctx.getImageData(0, 0, 32, 64);
-        var data = ImgData.data;
-        yaju1919.makeArray(data.length/4).forEach(function(i){
-            var x = i % 32,
-                y = Math.floor(i / 32);
-            var a = data[i * 4 + 3];
-            if(a === 0){ // 透明なら
-                ctx.beginPath () ;
-                ctx.rect( x, y, 1, 1 );
-                ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
-                ctx.fill() ;
-            }
-        });
-        var newImg = new Image();
-        newImg.onload = function(){
-            makeGIF(newImg);
-        };
-        newImg.src = cv.get(0).toDataURL();
-    }
-    function makeGIF(img){
+    function makeGIF(){
         var encoder = new GIFEncoder();
         encoder.setRepeat(0); //繰り返し回数 0=無限ループ
         encoder.setDelay(600); //1コマあたりの待機秒数（ミリ秒）
@@ -116,8 +159,8 @@
         encoder.start()
         var rate = input_rate();
         var cv = $("<canvas>").attr({
-            width: 16 * rate,
-            height: 16 * rate
+            width: input_w(),
+            height: input_h()
         });
         var ctx = cv.get(0).getContext('2d');
         // ドットを滑らかにしないおまじない
@@ -130,7 +173,9 @@
         var mode = select_mode();
         function draw(x, y){
             ctx.clearRect(0, 0, 16 * rate, 16 * rate);
-            ctx.drawImage(img, x * 16, y * 16, 16, 16, 0, 0, 16 * rate, 16 * rate);
+            ctx.fillStyle = input_color.val();
+            ctx.fillRect(0, 0, cv.get(0).width, cv.get(0).height);
+            ctx.drawImage(g_img, x * 16, y * 16, 16, 16, input_x(), input_y(), 16 * rate, 16 * rate);
             encoder.addFrame(ctx);
         }
         switch(mode){
@@ -166,6 +211,7 @@
                 break
         }
         encoder.finish();
+        h_result.append("<br><br>");
         $("<button>",{text:"ダウンロード"}).click(function(){
             encoder.download(g_fileName.replace(/\..*$/,'') + ".gif");
         }).appendTo(h_result.empty());
