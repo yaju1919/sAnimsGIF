@@ -31,7 +31,7 @@
         title: "拡大倍率",
         min: 1,
         save: "rate",
-        max: 9,
+        max: 26,
         value: 3,
     });
     var select_mode = yaju1919.addSelect(h,{
@@ -56,7 +56,7 @@
         value: 10,
     });
     h.append("<br>");
-    var input_color = $("<input>",{type:"color"}).val("#FFFFFF").appendTo($("<div>",{text:"透過色の設定"}).appendTo(h));
+    var input_color = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定"}).appendTo(h));
     h.append("<br><br>");
     $("<button>").appendTo(h).text("gif画像化処理を開始").click(makeGIF);
     var msg_e = $("<div>").appendTo(h);
@@ -86,7 +86,6 @@
         encoder.setDelay(600); //1コマあたりの待機秒数（ミリ秒）
         encoder.setQuality(input_quality()); // 色量子化の品質を設定
         encoder.setTransparent(Number("0x" + input_color.val().slice(1))); // 最後に追加されたフレームと後続のフレームの透明色を設定
-        encoder.setDispose(2); // 最後に追加されたフレームと後続のフレームのGIFフレーム廃棄コード
         encoder.start()
         var rate = input_rate();;
         var cv = $("<canvas>").attr({
@@ -103,6 +102,7 @@
         var sy = 0;
         var mode = select_mode();
         function draw(x, y){
+            ctx.clearRect(0, 0, 16 * rate, 16 * rate);
             ctx.drawImage(g_img, x * 16, y * 16, 16, 16, 0, 0, 16 * rate, 16 * rate);
             encoder.addFrame(ctx);
         }
