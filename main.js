@@ -87,7 +87,7 @@
         var sy = 0;
         var mode = select_mode();
         function draw(x, y){
-            ctx.drawImage(ctx, x * 16, y * 16, 16, 16, 0, 0, 16 * rate, 16 * rate);
+            ctx.drawImage(g_img, x * 16, y * 16, 16, 16, 0, 0, 16 * rate, 16 * rate);
             encoder.addFrame(ctx);
         }
         switch(mode){
