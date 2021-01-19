@@ -64,6 +64,13 @@
             "反時計回り": 5,
         }
     });
+    var input_delay = yaju1919.addInputNumber(h,{
+        title: "1コマあたりの待機秒数[ms]",
+        placeholder: "切り替え速度",
+        int: true,
+        min: 0,
+        value: 600,
+    });
     var input_quality = yaju1919.addInputNumber(h,{
         title: "処理速度(1~20)",
         placeholder: "速くなるほど低品質",
@@ -156,7 +163,7 @@
     function makeGIF(){
         var encoder = new GIFEncoder();
         encoder.setRepeat(0); //繰り返し回数 0=無限ループ
-        encoder.setDelay(600); //1コマあたりの待機秒数（ミリ秒）
+        encoder.setDelay(input_delay()); //1コマあたりの待機秒数（ミリ秒）
         encoder.setQuality(input_quality()); // 色量子化の品質を設定
         encoder.setTransparent(parseInt(input_color.val().slice(1),16)); // 最後に追加されたフレームと後続のフレームの透明色を設定
         encoder.start()
