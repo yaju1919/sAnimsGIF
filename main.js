@@ -69,7 +69,7 @@
     var input_originalAnime = yaju1919.addInputText(h_originalAnime,{
         textarea: true,
         save: "input_originalAnime",
-        placeholder: "向きを表すWASDと12を組み合わせて\n1フレームごとに改行で区切って入力\n\nW0\nA1\nS0\nD1",
+        placeholder: "向きを表すWASDと12を組み合わせて\n1フレームごとに改行で区切って入力\n\nW0\nA1\nS0\nD1\n",
     });
     h.append("<br>");
     var input_delay = yaju1919.addInputNumber(h,{
