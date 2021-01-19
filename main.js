@@ -65,7 +65,7 @@
         },
         change: v => h_originalAnime[v==='6'?'show':'hide']()
     });
-    var h_originalAnime = $("<div>").appendTo(h);
+    var h_originalAnime = $("<div>").appendTo(h).hide();
     var input_originalAnime = yaju1919.addInputText(h_originalAnime,{
         textarea: true,
         save: "input_originalAnime",
