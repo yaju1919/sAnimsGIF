@@ -54,7 +54,6 @@
     h.append(show_rated_size).append("<br>");
     var select_mode = yaju1919.addSelect(h,{
         title: "gifの動き方",
-        save:  "mode",
         list: {
             "前": 0,
             "後": 1,
@@ -62,8 +61,17 @@
             "右": 3,
             "時計回り": 4,
             "反時計回り": 5,
-        }
+            "オリジナル": 6,
+        },
+        change: v => h_originalAnime[v==='6'?'show':'hide']()
     });
+    var h_originalAnime = $("<div>").appendTo(h);
+    var input_originalAnime = yaju1919.addInputText(h_originalAnime,{
+        textarea: true,
+        save: "input_originalAnime",
+        placeholder: "向きを表すWASDと12を組み合わせて\n1フレームごとに改行で区切って入力\n\nW0\nA1\nS0\nD1",
+    });
+    h.append("<br>");
     var input_delay = yaju1919.addInputNumber(h,{
         title: "1コマあたりの待機秒数[ms]",
         placeholder: "切り替え速度",
@@ -80,10 +88,19 @@
         max: 20,
         value: 10,
     });
-    var input_color = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定:"}).appendTo(h));
+    var input_color = (()=>{
+        var s = "input_color",
+            e = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定:"}).appendTo(h)).on("change",v=>{
+                yaju1919.save(s,v);
+            });
+        yaju1919.load(s,v=>{
+            e.val(v);
+        });
+        return e;
+    })();
     h.append("<br>");
     var option_flag = yaju1919.addHideArea(h,{
-        title: "オプション機能",
+        title: "余白付きGIFを作成するための設定",
         id2: "opt",
         save: "opt"
     });
@@ -218,6 +235,20 @@
                     });
                 });
                 break
+            case '6': // オリジナル
+                input_originalAnime().split('\n').filter(v=>/^[WASD][01]/.test(v)).forEach(v=>{
+                    var x = Number(v[1]);
+                    var y = (()=>{
+                        switch(v[0]){
+                            case 'W': return 0;
+                            case 'A': return 3;
+                            case 'S': return 2;
+                            case 'D': return 1;
+                        }
+                    })();
+                    draw(x,y);
+                });
+                break;
         }
         encoder.finish();
         h_result.append("<br><br>");
