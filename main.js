@@ -63,7 +63,10 @@
             "反時計回り": 5,
             "オリジナル": 6,
         },
-        change: v => h_originalAnime[v==='6'?'show':'hide']()
+        change: v => {
+            if(!h_originalAnime) return;
+            h_originalAnime[v==='6'?'show':'hide']();
+        }
     });
     var h_originalAnime = $("<div>").appendTo(h).hide();
     var input_originalAnime = yaju1919.addInputText(h_originalAnime,{
@@ -90,9 +93,8 @@
     });
     var input_color = (()=>{
         var s = "input_color",
-            e = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定:"}).appendTo(h)).on("change",v=>{
-                yaju1919.save(s,v);
-            });
+            e = $("<input>",{type:"color"}).appendTo($("<div>",{text:"透明色の設定:"}).appendTo(h))
+        .on("change",()=>yaju1919.save(s,e.val()));
         yaju1919.load(s,v=>{
             e.val(v);
         });
